@@ -17,7 +17,7 @@ repositories {
 
 dependencies {
     compileOnly(kotlin("stdlib-jdk8"))
-    implementation("org.jetbrains.kotlin.spec.grammar:kotlin-grammar-parser:0.1")
+    implementation("org.jetbrains.kotlin.spec.grammar:kotlin-grammar-parser:2")
 }
 
 publishing {

@@ -10,6 +10,7 @@ import org.antlr.v4.runtime.tree.TerminalNodeImpl
 import org.jetbrains.kotlin.spec.grammar.tools.*
 import org.jetbrains.kotlin.spec.grammar.KotlinLexer
 import org.jetbrains.kotlin.spec.grammar.KotlinParser
+import org.jetbrains.kotlin.spec.grammar.KotlinParser.KotlinFileContext
 
 internal object Parser {
     private val errorLexerListener = object : BaseErrorListener() {
@@ -93,7 +94,7 @@ internal object Parser {
         return kotlinParseTree
     }
 
-    fun parse(tokens: List<KotlinToken>): KotlinParseTree {
+    fun parse(tokens: List<KotlinToken>): kotlin.Pair<KotlinParseTree, KotlinFileContext> {
         val tokenTypeMap = KotlinLexer(null).tokenTypeMap
         val tokensList = ListTokenSource(tokens.map { getAntlrTokenByKotlinToken(it, tokenTypeMap) })
         val parser = KotlinParser(CommonTokenStream(tokensList)).apply {
@@ -110,6 +111,6 @@ internal object Parser {
                 KotlinParseTreeNodeType.RULE,
                 parser.ruleNames[parser.ruleIndexMap["kotlinFile"]!!]
             )
-        )
+        ) to tree
     }
 }
