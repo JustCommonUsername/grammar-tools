@@ -1,5 +1,6 @@
 package org.jetbrains.kotlin.spec.grammar.tools
 
+import org.jetbrains.kotlin.spec.grammar.KotlinParser.KotlinFileContext
 import org.jetbrains.kotlin.spec.grammar.tools.parsing.Parser
 
 class KotlinToken(
@@ -54,8 +55,8 @@ class KotlinParseTree(
     override fun toString() = stringifyTree(StringBuilder(), this).toString()
 }
 
-fun parseKotlinCode(tokens: List<KotlinToken>) = Parser.parse(tokens)
+fun parseKotlinCode(tokens: List<KotlinToken>): Pair<KotlinParseTree, KotlinFileContext> = Parser.parse(tokens)
 
-fun parseKotlinCode(sourceCode: String) = parseKotlinCode(tokenizeKotlinCode(sourceCode))
+fun parseKotlinCode(sourceCode: String): Pair<KotlinParseTree, KotlinFileContext> = parseKotlinCode(tokenizeKotlinCode(sourceCode))
 
 fun tokenizeKotlinCode(sourceCode: String) = Parser.tokenize(sourceCode)

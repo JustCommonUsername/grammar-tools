@@ -13,7 +13,7 @@ import org.jetbrains.kotlin.spec.grammar.KotlinParser
 import org.jetbrains.kotlin.spec.grammar.KotlinParser.KotlinFileContext
 
 internal object Parser {
-    private val errorLexerListener = object : BaseErrorListener() {
+    val errorLexerListener = object : BaseErrorListener() {
         override fun syntaxError(
             recognizer: Recognizer<*, *>?,
             offendingSymbol: Any?,
@@ -24,7 +24,7 @@ internal object Parser {
         ) = throw KotlinLexerException(message, kotlin.Pair(line, charPositionInLine))
     }
 
-    private val errorParserListener = object : BaseErrorListener() {
+    val errorParserListener = object : BaseErrorListener() {
         override fun syntaxError(
             recognizer: Recognizer<*, *>?,
             offendingSymbol: Any?,
@@ -35,10 +35,10 @@ internal object Parser {
         ) = throw KotlinParserException(message, kotlin.Pair(line, charPositionInLine))
     }
 
-    private fun getCharsStream(str: String) =
+    fun getCharsStream(str: String) =
         CharStreams.fromStream(ByteArrayInputStream(str.toByteArray()), StandardCharsets.UTF_8)
 
-    private fun getAntlrTokenByKotlinToken(token: KotlinToken, tokenTypeMap: Map<String, Int>): CommonToken {
+    fun getAntlrTokenByKotlinToken(token: KotlinToken, tokenTypeMap: Map<String, Int>): CommonToken {
         val tokenNumber = tokenTypeMap[token.type]!!
 
         return if (token.channel == DEFAULT_CHANNEL)
@@ -65,7 +65,7 @@ internal object Parser {
         )
     }
 
-    private fun buildTree(
+    fun buildTree(
         parser: KotlinParser,
         tokenTypeMap: Map<String, Int>,
         antlrParseTree: ParseTree,
