@@ -23,7 +23,7 @@ fun main() {
     println(tree.toStringTree(parser))
 
     val expressions = parser.getRulesByPattern<ExpressionContext>(
-        tree, "add ( <expression> )", "expression"
+        tree, "add ( <expression> )"
     )
 
     expressions.forEach { it.addChild(IdentifierContext(it, it.invokingState)) }

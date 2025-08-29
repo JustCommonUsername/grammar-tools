@@ -7,12 +7,14 @@ import org.jetbrains.kotlin.spec.grammar.KotlinParser
 
 
 inline fun <reified T : ParserRuleContext> KotlinParser.getRuleByPattern(
-    tree: ParseTree, pattern: String, rule: String, index: Int
-): T = getRulesByPattern<T>(tree, pattern, rule)[index]
+    tree: ParseTree, pattern: String, index: Int
+): T = getRulesByPattern<T>(tree, pattern)[index]
 
 inline fun <reified T : ParserRuleContext> KotlinParser.getRulesByPattern(
-    tree: ParseTree, pattern: String, rule: String
+    tree: ParseTree, pattern: String
 ): List<T> {
+    val rule = T::class.simpleName?.removeSuffix("Context")?.lowercase() ?:
+        throw IllegalArgumentException("No simple name for the Kotlin Parser rule type!")
     val compiledPattern = compileParseTreePattern(pattern, getRuleIndex(rule))
     // Using XPath finder mechanism here, see
     // https://github.com/antlr/antlr4/blob/master/doc/tree-matching.md#using-xpath-to-identify-parse-tree-node-sets
@@ -21,6 +23,7 @@ inline fun <reified T : ParserRuleContext> KotlinParser.getRulesByPattern(
     if (expressions.isEmpty())
         throw RuleNoteFoundException("Rule $rule not found in tree\n ${tree.toStringTree(this)}")
 
+    // Parse tree _should_ be convertible because we find the sub trees by the rule
     return expressions.map { it.tree as T }
 }
 
