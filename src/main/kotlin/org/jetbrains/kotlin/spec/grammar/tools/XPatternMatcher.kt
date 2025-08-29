@@ -1,62 +1,32 @@
 package org.jetbrains.kotlin.spec.grammar.tools
 
+import org.antlr.v4.runtime.CharStreams
 import org.antlr.v4.runtime.CommonTokenStream
-import org.antlr.v4.runtime.ListTokenSource
 import org.jetbrains.kotlin.spec.grammar.KotlinLexer
 import org.jetbrains.kotlin.spec.grammar.KotlinParser
-import org.jetbrains.kotlin.spec.grammar.tools.parsing.Parser
+import org.jetbrains.kotlin.spec.grammar.KotlinParser.ExpressionContext
+import org.jetbrains.kotlin.spec.grammar.KotlinParser.IdentifierContext
+import org.jetbrains.kotlin.spec.grammar.tools.util.getRulesByPattern
 
 fun main() {
-    /* val input = """
-        import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
-        plugins {
-            kotlin("jvm") version "1.7.0"
-            `maven-publish`
-        }
+    val input = """
+        val x = add(10)
         
-        dependencies {
-            implementation("test")
+        fun test() {
+            while(true) { doSomething() }
         }
-        
-        x {
-            dependencies {
-                add("10")
-                add("10")
-            }
-        }
-    """.trimIndent() */
-    val input = "val x = add(10)"
-    val tokens = tokenizeKotlinCode(input)
-    val tokenTypeMap = KotlinLexer(null).tokenTypeMap
-    val tokensList = ListTokenSource(tokens.map { Parser.getAntlrTokenByKotlinToken(it, tokenTypeMap) })
-    val parser = KotlinParser(CommonTokenStream(tokensList)).apply {
-        removeErrorListeners()
-        addErrorListener(Parser.errorParserListener)
-    }
+    """.trimIndent()
+    val lexer = KotlinLexer(CharStreams.fromString(input))
+    val parser = KotlinParser(CommonTokenStream(lexer))
     val tree = parser.kotlinFile()
 
-    val kotlinTree = Parser.buildTree(
-        parser,
-        tokenTypeMap,
-        tree,
-        KotlinParseTree(
-            KotlinParseTreeNodeType.RULE,
-            parser.ruleNames[parser.ruleIndexMap["kotlinFile"]!!]
-        )
+    println(tree.toStringTree(parser))
+
+    val expressions = parser.getRulesByPattern<ExpressionContext>(
+        tree, "add ( <expression> )", "expression"
     )
 
-    println(kotlinTree)
+    expressions.forEach { it.addChild(IdentifierContext(it, it.invokingState)) }
 
-    val lexerForMatching = KotlinLexer(
-        Parser.getCharsStream(input)
-    ).apply {
-        removeErrorListeners()
-        addErrorListener(Parser.errorLexerListener)
-    }
-
-    println(lexerForMatching.allTokens)
-
-    val xPattern = parser.compileParseTreePattern("add(<valueArgument>)", KotlinParser.RULE_valueArgument, lexerForMatching)
-    println(xPattern.match(tree).succeeded())
+    println(expressions.map { it.toStringTree(parser) })
 }
