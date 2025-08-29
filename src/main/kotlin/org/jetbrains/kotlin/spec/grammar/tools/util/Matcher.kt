@@ -13,7 +13,7 @@ inline fun <reified T : ParserRuleContext> KotlinParser.getRuleByPattern(
 inline fun <reified T : ParserRuleContext> KotlinParser.getRulesByPattern(
     tree: ParseTree, pattern: String
 ): List<T> {
-    val rule = T::class.simpleName?.removeSuffix("Context")?.lowercase() ?:
+    val rule = T::class.simpleName?.removeSuffix("Context")?.replaceFirstChar { it.lowercase() } ?:
         throw IllegalArgumentException("No simple name for the Kotlin Parser rule type!")
     val compiledPattern = compileParseTreePattern(pattern, getRuleIndex(rule))
     // Using XPath finder mechanism here, see
@@ -23,7 +23,7 @@ inline fun <reified T : ParserRuleContext> KotlinParser.getRulesByPattern(
     if (expressions.isEmpty())
         throw RuleNoteFoundException("Rule $rule not found in tree\n ${tree.toStringTree(this)}")
 
-    // Parse tree _should_ be convertible because we find the sub trees by the rule
+    // Parse tree _should_ be convertible because we find the subtrees by the rule
     return expressions.map { it.tree as T }
 }
 
