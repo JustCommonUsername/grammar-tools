@@ -6,7 +6,8 @@ import org.jetbrains.kotlin.spec.grammar.KotlinLexer
 import org.jetbrains.kotlin.spec.grammar.KotlinParser
 import org.jetbrains.kotlin.spec.grammar.KotlinParser.ExpressionContext
 import org.jetbrains.kotlin.spec.grammar.KotlinParser.IdentifierContext
-import org.jetbrains.kotlin.spec.grammar.tools.util.getRulesByPattern
+import org.jetbrains.kotlin.spec.grammar.tools.util.TypesafeTreeMatch
+import org.jetbrains.kotlin.spec.grammar.tools.util.subtreeMatch
 
 fun main() {
     val input = """
@@ -22,9 +23,9 @@ fun main() {
 
     println(tree.toStringTree(parser))
 
-    val expressions = parser.getRulesByPattern<ExpressionContext>(
-        tree, "add ( <expression> )"
-    )
+    val expressions: List<ExpressionContext> = tree.subtreeMatch<ExpressionContext>(
+        parser, "add ( <expression> )"
+    ).map(TypesafeTreeMatch<ExpressionContext>::tree)
 
     expressions.forEach { it.addChild(IdentifierContext(it, it.invokingState)) }
 
